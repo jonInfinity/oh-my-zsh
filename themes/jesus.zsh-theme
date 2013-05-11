@@ -31,6 +31,12 @@ ZSH_THEME_GIT_TIME_SHORT_COMMIT_MEDIUM="%{$fg[yellow]%}"
 ZSH_THEME_GIT_TIME_SINCE_COMMIT_LONG="%{$fg[red]%}"
 ZSH_THEME_GIT_TIME_SINCE_COMMIT_NEUTRAL="%{$fg[cyan]%}"
 
-PROMPT='$(git_prompt_short_sha)$(git_prompt_info)%{$reset_color%}; '
+function prompt_char() {
+  git branch >/dev/null 2>/dev/null && echo "
+%{$fg[red]%};%{$reset_color%}" && return
+  echo ";"
+}
+
+PROMPT='$(git_prompt_short_sha)$(git_prompt_info)%{$reset_color%}$(prompt_char) '
 
 RPROMPT='${return_status}%{$reset_color%}%{$fg_bold[blue]%}%m%{$reset_color%}'
