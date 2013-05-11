@@ -9,18 +9,23 @@ function git_prompt_info() {
 # Checks if working tree is dirty
 parse_git_dirty() {
   local SUBMODULE_SYNTAX=''
+  local GET_STATUS_UNO=''
   local GIT_STATUS=''
   local CLEAN_MESSAGE='nothing to commit (working directory clean)'
   if [[ "$(git config --get oh-my-zsh.hide-status)" != "1" ]]; then
     if [[ $POST_1_7_2_GIT -gt 0 ]]; then
           SUBMODULE_SYNTAX="--ignore-submodules=dirty"
     fi
-    if [[ "$DISABLE_UNTRACKED_FILES_DIRTY" != "true" ]]; then
+    if [[ "$DISABLE_UNTRACKED_FILES_DIRTY" != "true" ]] &&
+       [[ "$(git config --bool bash.showUntrackedFiles)" != "false" ]] ; then
         GIT_STATUS=$(git status -s ${SUBMODULE_SYNTAX} 2> /dev/null | tail -n1)
     else
         GIT_STATUS=$(git status -s ${SUBMODULE_SYNTAX} -uno 2> /dev/null | tail -n1)
+        GIT_STATUS_UNO="x$GIT_STATUS"
     fi
-    if [[ -n $(git status -s ${SUBMODULE_SYNTAX} -uno  2> /dev/null) ]]; then
+    if [[ "$GIT_STATUS_UNO" == "x" ]] ; then
+      echo "$ZSH_THEME_GIT_PROMPT_CLEAN"
+    elif [[ -n $(git status -s ${SUBMODULE_SYNTAX} -uno  2> /dev/null) ]]; then
       echo "$ZSH_THEME_GIT_PROMPT_DIRTY"
     else
       echo "$ZSH_THEME_GIT_PROMPT_CLEAN"
