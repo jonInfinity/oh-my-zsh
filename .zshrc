@@ -151,7 +151,6 @@ authids() {
 	done
 }
 renv() {
-  pushid ${1}
-  pushrc z ${1}
+  pushzshrc ${1}
   pushbash ${1}
 }
