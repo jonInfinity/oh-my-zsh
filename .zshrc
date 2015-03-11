@@ -128,12 +128,12 @@ fi
 
 pushzshrc() {
   print "Pushing .zshrc to ${2}..."
-	https://raw.githubusercontent.com/postwait/oh-my-zsh/master/.zshrc | \
-    ssh ${2} "rm -f .zshrc; cat > .zshrc"
+	curl https://raw.githubusercontent.com/postwait/oh-my-zsh/master/.zshrc | \
+    ssh ${1} "rm -f .zshrc; cat > .zshrc"
 }
 pushbash() {
   print "Pushing .bash_profile to ${1}..."
-	https://raw.githubusercontent.com/postwait/oh-my-zsh/master/.bash_profile | \
+	curl https://raw.githubusercontent.com/postwait/oh-my-zsh/master/.bash_profile | \
     ssh ${1} "rm -f .bash_profile; cat > .bash_profile"
 }
 authids() {
