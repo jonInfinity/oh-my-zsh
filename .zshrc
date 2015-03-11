@@ -1,7 +1,12 @@
-if [ ! -d .oh-my-zsh ]; then
+if [ ! -d ~/.oh-my-zsh ]; then
 export PATH=~/bin:/opt/subversion/bin:/opt/omni/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/sfw/bin:/usr/sfw/sbin:/opt/sfw/bin:/opt/sfw/sbin:/usr/X11R6/bin:/usr/ccs/bin:/usr/proc/bin:/opt/sunstudio12.1/bin:/opt/SUNWspro/bin:/opt/local/bin:/opt/local/lib/postgresql84/bin:.
 
 git clone https://github.com/postwait/oh-my-zsh.git .oh-my-zsh 2>/dev/null
+
+if [ -r .oh-my-zsh/.zshrc ]; then
+	(cd ~ && ln -fs .oh-my-zsh/.zshrc .zshrc)
+	(cd ~ && ln -fs .oh-my-zsh/.bash_profile .bash_profile)
+fi
 
 if [[ -e .noco ]]; then
   umask 22
@@ -68,26 +73,6 @@ fi
 growl() {
   echo -e $'\e]9;'${1}'\007'
 }
-pushrc() {
-  print "Pushing ${1}shrc to ${2}..."
-  svn cat https://svn.omniti.com/people/jesus/environment/.${1}shrc | \
-    ssh ${2} "rm -f .${1}shrc; cat > .${1}shrc"
-}
-pushbash() {
-  print "Pushing .bash_profile to ${1}..."
-  svn cat https://svn.omniti.com/people/jesus/environment/.bash_profile | \
-    ssh ${1} "rm -f .bash_profile; cat > .bash_profile"
-}
-pushid() {
-  print "Pushing SSH identity up..."
-  svn cat https://svn.omniti.com/people/jesus/environment/id_dsa.pub | \
-    ssh "${1}" "mkdir -p .ssh ; touch .ssh/authorized_keys2 ; cat >> .ssh/authorized_keys2"
-}
-renv() {
-  pushid ${1}
-  pushrc z ${1}
-  pushbash ${1}
-}
 else
 
 # Path to your oh-my-zsh configuration.
@@ -140,3 +125,33 @@ GPG_TTY=`tty`
 export GPG_TTY
 # Customize to your needs...
 fi
+
+pushzshrc() {
+  print "Pushing .zshrc to ${2}..."
+	https://raw.githubusercontent.com/postwait/oh-my-zsh/master/.zshrc | \
+    ssh ${2} "rm -f .zshrc; cat > .zshrc"
+}
+pushbash() {
+  print "Pushing .bash_profile to ${1}..."
+	https://raw.githubusercontent.com/postwait/oh-my-zsh/master/.bash_profile | \
+    ssh ${1} "rm -f .bash_profile; cat > .bash_profile"
+}
+authids() {
+  print "Integrating SSH identities..."
+	AKEY=~/.ssh/authorized_keys2
+	if [ -e ~/.ssh/authorized_keys ]; then
+		AKEY=~/.ssh/authorized_keys
+	fi
+	for i in ~/.oh-my-zsh/pubkeys/*; do
+		OUTPUT=`fgrep -v -f $AKEY $i`
+		if [ -n "$OUTPUT" ]; then
+			echo " <<< $i"
+			echo $OUTPUT >> $AKEY
+		fi
+	done
+}
+renv() {
+  pushid ${1}
+  pushrc z ${1}
+  pushbash ${1}
+}
