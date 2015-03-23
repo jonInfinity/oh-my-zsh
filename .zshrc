@@ -1,5 +1,31 @@
+DIRS="/opt/circonus/bin
+/opt/omni/bin
+/bin
+/usr/bin
+/sbin
+/usr/sbin
+/usr/local/bin
+/usr/local/sbin
+/usr/ccs/bin
+/usr/proc/bin
+/opt/gcc-4.8.1/bin
+/opt/gcc-4.7.2/bin
+/opt/gcc-4.6.3/bin
+/opt/sunstudio12.1/bin
+/opt/SUNWspro/bin
+/opt/onbld/bin/i386
+/opt/local/bin"
+
+PATH=~/bin
+echo $DIRS | while read dir; do
+	if [[ -d $dir ]]; then
+		PATH=$PATH:$dir
+	fi
+done
+PATH=$PATH:.
+export PATH
+
 if [ ! -d ~/.oh-my-zsh ]; then
-export PATH=~/bin:/opt/subversion/bin:/opt/omni/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/sfw/bin:/usr/sfw/sbin:/opt/sfw/bin:/opt/sfw/sbin:/usr/X11R6/bin:/usr/ccs/bin:/usr/proc/bin:/opt/sunstudio12.1/bin:/opt/SUNWspro/bin:/opt/local/bin:/opt/local/lib/postgresql84/bin:.
 
 git clone https://github.com/postwait/oh-my-zsh.git .oh-my-zsh 2>/dev/null
 
