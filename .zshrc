@@ -58,18 +58,6 @@ if [[ -f $HOME/.ssh/known_hosts ]] then
   zstyle ':completion:*:*:ssh:*:*' hosts $_myhosts
 fi
 
-psargs="x"
-[[ `uname` == "SunOS" ]] && psargs="-fu$USER"
-SSHAGENTENV="$HOME/.ssh_agent_env"
-if [[ -z ${(M)$(ps $psargs):#ssh-agent} &&
-      `id -u` != 0 &&
-      ( -f $HOME/.ssh/id_dsa ||
-        -f $HOME/.ssh/id_rsa ||
-        -f $HOME/.ssh/identity ) ]] then
-  ssh-agent | grep -v '^echo' > $SSHAGENTENV
-fi
-[[ -r $SSHAGENTENV ]] && . $SSHAGENTENV
-
 growl() {
   echo -e $'\e]9;'${1}'\007'
 }
@@ -126,6 +114,19 @@ export GPG_TTY
 # Customize to your needs...
 fi
 
+psargs="x"
+[[ `uname` == "SunOS" ]] && psargs="-fu$USER"
+SSHAGENTENV="$HOME/.ssh_agent_env"
+if [[ -z ${(M)$(ps $psargs):#ssh-agent} &&
+      `id -u` != 0 &&
+      ( -f $HOME/.ssh/id_dsa ||
+        -f $HOME/.ssh/id_rsa ||
+        -f $HOME/.ssh/identity ) ]] then
+  ssh-agent | grep -v '^echo' > $SSHAGENTENV
+fi
+[[ -r $SSHAGENTENV ]] && . $SSHAGENTENV
+
+export COPYFILE_DISABLE=true
 pushzshrc() {
   print "Pushing .zshrc to ${1}..."
 	curl -s https://raw.githubusercontent.com/postwait/oh-my-zsh/master/.zshrc | \
@@ -138,17 +139,22 @@ pushbash() {
 }
 authids() {
   print "Integrating SSH identities..."
-	AKEY=~/.ssh/authorized_keys2
-	if [ -e ~/.ssh/authorized_keys ]; then
-		AKEY=~/.ssh/authorized_keys
-	fi
-	for i in ~/.oh-my-zsh/pubkeys/*; do
-		OUTPUT=`fgrep -v -f $AKEY $i`
-		if [ -n "$OUTPUT" ]; then
-			echo " <<< $i"
-			echo $OUTPUT >> $AKEY
-		fi
-	done
+  mkdir -p ~/.ssh
+  AKEY=~/.ssh/authorized_keys2
+  if [ -e ~/.ssh/authorized_keys ]; then
+    AKEY=~/.ssh/authorized_keys
+  fi
+  if [ ! -e $AKEY ]; then
+    touch $AKEY
+    chmod 644 $AKEY
+  fi
+  for i in ~/.oh-my-zsh/pubkeys/*; do
+    OUTPUT=`fgrep -v -f $AKEY $i`
+    if [ -n "$OUTPUT" ]; then
+      echo " <<< $i"
+      echo $OUTPUT >> $AKEY
+    fi
+  done
 }
 renv() {
   pushzshrc ${1}
