@@ -6,7 +6,7 @@
 # -----------------------------------------------------------------------------
 
 MODE_INDICATOR="%{$fg_bold[red]%}❮%{$reset_color%}%{$fg[red]%}❮❮%{$reset_color%}"
-local return_status="%{$fg[red]%}%(?..⏎)%{$reset_color%} "
+#local return_status="%{$fg[red]%}%(?..⏎)%{$reset_color%} "
 
 ZSH_THEME_GIT_PROMPT_PREFIX="|"
 ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"
@@ -32,11 +32,11 @@ ZSH_THEME_GIT_TIME_SINCE_COMMIT_LONG="%{$fg[red]%}"
 ZSH_THEME_GIT_TIME_SINCE_COMMIT_NEUTRAL="%{$fg[cyan]%}"
 
 function prompt_char() {
-  git branch >/dev/null 2>/dev/null && echo "
-%{$fg[red]%};%{$reset_color%}" && return
+#  git branch >/dev/null 2>/dev/null && echo "
+#%{$fg[red]%};%{$reset_color%}" && return
   echo ";"
 }
 
-PROMPT='$(git_prompt_short_sha)$(git_prompt_info)%{$reset_color%}$(prompt_char) '
-
+#PROMPT='$(git_prompt_short_sha)$(git_prompt_info)%{$reset_color%}$(prompt_char) '
+PROMPT='$(prompt_char) '
 RPROMPT='${return_status}%{$reset_color%}%{$fg_bold[blue]%}%m%{$reset_color%}'
