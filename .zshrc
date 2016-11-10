@@ -52,17 +52,19 @@ export GPG_TTY
 # Customize to your needs...
 fi
 
-psargs="x"
-[[ `uname` == "SunOS" ]] && psargs="-fu$USER"
-SSHAGENTENV="$HOME/.ssh_agent_env"
-if [[ -z ${(M)$(ps $psargs):#ssh-agent} &&
-      `id -u` != 0 &&
-      ( -f $HOME/.ssh/id_dsa ||
-        -f $HOME/.ssh/id_rsa ||
-        -f $HOME/.ssh/identity ) ]] then
-  ssh-agent | grep -v '^echo' > $SSHAGENTENV
+if [[ -z "$SSH_AUTH_SOCK" ]]; then
+	psargs="x"
+	[[ `uname` == "SunOS" ]] && psargs="-fu$USER"
+	SSHAGENTENV="$HOME/.ssh_agent_env"
+	if [[ -z ${(M)$(ps $psargs):#ssh-agent} &&
+	      `id -u` != 0 &&
+	      ( -f $HOME/.ssh/id_dsa ||
+	        -f $HOME/.ssh/id_rsa ||
+	        -f $HOME/.ssh/identity ) ]] then
+		ssh-agent | grep -v '^echo' > $SSHAGENTENV
+	fi
+	[[ -r $SSHAGENTENV ]] && . $SSHAGENTENV
 fi
-[[ -r $SSHAGENTENV ]] && . $SSHAGENTENV
 
 export COPYFILE_DISABLE=true
 pushzshrc() {
