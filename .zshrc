@@ -11,8 +11,7 @@ DIRS="/opt/circonus/bin
 /opt/gcc-4.8.1/bin
 /opt/gcc-4.7.2/bin
 /opt/gcc-4.6.3/bin
-/opt/sunstudio12.1/bin
-/opt/SUNWspro/bin
+/opt/circonus/go/bin
 /opt/onbld/bin/i386
 /opt/local/bin"
 
@@ -24,6 +23,7 @@ echo $DIRS | while read dir; do
 done
 PATH=$PATH:.
 export PATH
+export GOPATH=$HOME/src/go
 
 if [ ! -d ~/.oh-my-zsh ]; then
 
