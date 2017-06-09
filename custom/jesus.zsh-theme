@@ -39,4 +39,4 @@ function prompt_char() {
 
 PROMPT='$(git_prompt_short_sha)$(git_prompt_info)%{$reset_color%}$(prompt_char) '
 #PROMPT='$(prompt_char) '
-RPROMPT='${return_status}%{$reset_color%}%{$fg_bold[blue]%}%m%{$reset_color%}'
+#RPROMPT='${return_status}%{$reset_color%}%{$fg_bold[blue]%}%m%{$reset_color%}'
