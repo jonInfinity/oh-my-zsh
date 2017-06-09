@@ -5,6 +5,7 @@
 #       VERSION: 0.1
 # -----------------------------------------------------------------------------
 
+export LS_COLORS="di=0:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=0"
 MODE_INDICATOR="%{$fg_bold[red]%}❮%{$reset_color%}%{$fg[red]%}❮❮%{$reset_color%}"
 #local return_status="%{$fg[red]%}%(?..⏎)%{$reset_color%} "
 
