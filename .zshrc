@@ -1,5 +1,6 @@
 DIRS="/opt/circonus/bin
 /opt/omni/bin
+/opt/circonus/go/bin
 /bin
 /usr/bin
 /sbin
