@@ -1,6 +1,7 @@
-DIRS="/opt/circonus/bin
+DIRS="/home/jesus/bin
+/home/jesus/src/go/bin
+/opt/circonus/bin
 /opt/omni/bin
-/opt/circonus/go/bin
 /bin
 /usr/bin
 /sbin
@@ -9,6 +10,7 @@ DIRS="/opt/circonus/bin
 /usr/local/sbin
 /usr/ccs/bin
 /usr/proc/bin
+/opt/llvm-5.0.0/bin
 /opt/gcc-4.8.1/bin
 /opt/gcc-4.7.2/bin
 /opt/gcc-4.6.3/bin
