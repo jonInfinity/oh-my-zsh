@@ -16,6 +16,7 @@ DIRS="/home/jesus/bin
 /opt/gcc-4.6.3/bin
 /opt/circonus/go/bin
 /opt/onbld/bin/i386
+/usr/local/go/bin
 /opt/local/bin"
 
 PATH=~/bin
@@ -55,18 +56,63 @@ export GPG_TTY
 # Customize to your needs...
 fi
 
-if [[ -z "$SSH_AUTH_SOCK" ]]; then
-	psargs="x"
-	[[ `uname` == "SunOS" ]] && psargs="-fu$USER"
-	SSHAGENTENV="$HOME/.ssh_agent_env"
-	if [[ -z ${(M)$(ps $psargs):#ssh-agent} &&
-	      `id -u` != 0 &&
-	      ( -f $HOME/.ssh/id_dsa ||
-	        -f $HOME/.ssh/id_rsa ||
-	        -f $HOME/.ssh/identity ) ]] then
-		ssh-agent | grep -v '^echo' > $SSHAGENTENV
+if [ -n "$SSH_AUTH_SOCK" ]; then
+	ssh-add -l >/dev/null 2>&1
+	if [ "0" -ne "$?" ]; then
+		echo "ssh-agent not working, clearing."
+		unset SSH_AUTH_SOCK
 	fi
-	[[ -r $SSHAGENTENV ]] && . $SSHAGENTENV
+fi
+# OMG a mess
+#
+# On Window under WSL...
+# We use WinCrypt SSH Agent to expose the Yubikey as pagent and over
+# openssh-style auth sockets at $WINCRYPTSOCK.. however, WSL1 can
+# connect to such a socket on the host, but WSL2 cannot.
+# For WSL1, we will use it directly, but for WSL2 we need to use
+# the weasel-pageant assist that will map it in other ways.
+WINCRYPTSOCK=/mnt/c/Users/jesus/wincrypt-wsl.sock
+WEASEL="/mnt/c/Program Files/weasel-pageant-1.4/weasel-pageant"
+# We detect WSL2 b/c WSL1 does not have / mounted as ext4
+WSL2=`mount -l -t ext4 | awk '{if($3 == "/"){print $1;}}'`
+if [ -z "$SSH_AUTH_SOCK" ]; then
+	if [ -e "$WINCRYPTSOCK" ]; then
+		if [ -z "$WSL2" ]; then
+			# Windows WinCryptSSHAgent
+			export SSH_AUTH_SOCK=$WINCRYPTSOCK
+		elif [ -x "$WEASEL" ]; then
+			# Potentially WSL1
+			if [ -e ~/.ssh_weasel ]; then
+				source ~/.ssh_weasel
+			fi
+			WPID=`pgrep weasel-pageant`
+			if [ "$WPID" -lt "1" -o "$WPID" != "$SSH_PAGEANT_PID" ]; then
+				unset SSH_PAGENT_PID
+				unset SSH_AUTH_SOCK
+				rm -f ~/.ssh_weasel
+			fi
+			if [ -z "$SSH_AUTH_SOCK" ]; then
+				$WEASEL | grep -v echo > ~/.ssh_weasel
+				source ~/.ssh_weasel
+			fi
+		else
+			echo "Appear to be on WSL2, no $WEASEL"
+		fi
+	fi
+fi
+
+if [[ -z "$SSH_AUTH_SOCK" ]]; then
+      psargs="x"
+      [[ `uname` == "SunOS" ]] && psargs="-fu$USER"
+      SSHAGENTENV="$HOME/.ssh_agent_env"
+      if [[ -z ${(M)$(ps $psargs):#ssh-agent} &&
+             `id -u` != 0 &&
+             ( -f $HOME/.ssh/id_dsa ||
+               -f $HOME/.ssh/id_rsa ||
+               -f $HOME/.ssh/identity ) ]] then
+               ssh-agent | grep -v '^echo' > $SSHAGENTENV
+     fi
+     [[ -r $SSHAGENTENV ]] && . $SSHAGENTENV
 fi
 
 export COPYFILE_DISABLE=true
