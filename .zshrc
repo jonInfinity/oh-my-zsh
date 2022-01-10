@@ -58,8 +58,20 @@ fi
 
 if [ -n "$SSH_AUTH_SOCK" ]; then
 	ssh-add -l >/dev/null 2>&1
-	if [ "0" -ne "$?" ]; then
-		echo "ssh-agent not working, clearing."
+        BAD=$?
+	if [ "0" -eq "$BAD" ]; then
+		echo "ssh-agent available"	
+	elif [ "1" -eq "$BAD" ]; then
+		echo "ssh-agent empty? [$BAD]"
+		ssh-add >/dev/null 2>&1
+		ssh-add -l >/dev/null 2>&1
+		BAD=$?
+		if [ "0" -ne "$BAD" ]; then
+			echo "ssh-agent not working [$BAD], clearing."
+			unset SSH_AUTH_SOCK
+		fi
+	else
+		echo "ssh-agent not working [$BAD], clearing."
 		unset SSH_AUTH_SOCK
 	fi
 fi
@@ -74,7 +86,9 @@ fi
 WINCRYPTSOCK=/mnt/c/Users/jesus/wincrypt-wsl.sock
 WEASEL="/mnt/c/Program Files/weasel-pageant-1.4/weasel-pageant"
 # We detect WSL2 b/c WSL1 does not have / mounted as ext4
-WSL2=`mount -l -t ext4 | awk '{if($3 == "/"){print $1;}}'`
+if [ -d /mnt/c ]; then
+	WSL2=`mount -l -t ext4 2>/dev/null | awk '{if($3 == "/"){print $1;}}'`
+fi
 if [ -z "$SSH_AUTH_SOCK" ]; then
 	if [ -e "$WINCRYPTSOCK" ]; then
 		if [ -z "$WSL2" ]; then
@@ -114,6 +128,7 @@ if [[ -z "$SSH_AUTH_SOCK" ]]; then
              `id -u` != 0 &&
              ( -f $HOME/.ssh/id_dsa ||
                -f $HOME/.ssh/id_rsa ||
+               -f $HOME/.ssh/id_ed25519 ||
                -f $HOME/.ssh/identity ) ]] then
                ssh-agent | grep -v '^echo' > $SSHAGENTENV
      fi
